@@ -60,11 +60,11 @@ public class CountriesController : ControllerBase
 
     if (country == null) return NotFound();
 
-    _mapper.Map(updateCountryDto, country); // change entity
+    _mapper.Map(updateCountryDto, country);
 
     try
     {
-      await _countriesRepository.UpdateAsync(country);
+      await _countriesRepository.UpdateAsync(country); // change entity
     }
     catch (DbUpdateConcurrencyException)
     {

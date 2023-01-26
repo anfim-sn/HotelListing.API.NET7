@@ -43,6 +43,7 @@ builder.Services.AddScoped(
 );
 
 builder.Services.AddScoped<ICountriesRepository, CountriesRepository>();
+builder.Services.AddScoped<IHotelsRepository, HotelsRepository>();
 
 //Build
 var app = builder.Build();
