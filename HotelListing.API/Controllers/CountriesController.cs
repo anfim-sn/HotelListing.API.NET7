@@ -2,6 +2,7 @@
 using HotelListing.API.Contracts;
 using HotelListing.API.Data;
 using HotelListing.API.Models.Country;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -49,6 +50,7 @@ public class CountriesController : ControllerBase
 
   // PUT: api/Countries/5
   [HttpPut("{id}")]
+  [Authorize]
   public async Task<IActionResult> PutCountry(
     int id,
     UpdateCountryDto updateCountryDto
@@ -77,6 +79,7 @@ public class CountriesController : ControllerBase
 
   // POST: api/Countries
   [HttpPost]
+  [Authorize]
   public async Task<ActionResult<CreateCountryDto>> PostCountry(
     CreateCountryDto createCountry
   )
@@ -90,6 +93,7 @@ public class CountriesController : ControllerBase
 
   // DELETE: api/Countries/5
   [HttpDelete("{id}")]
+  [Authorize(Roles = "Administrator")]
   public async Task<IActionResult> DeleteCountry(int id)
   {
     var country = await _countriesRepository.GetAsync(id);

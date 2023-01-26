@@ -2,6 +2,7 @@
 using HotelListing.API.Contracts;
 using HotelListing.API.Data;
 using HotelListing.API.Models.Hotel;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -45,6 +46,7 @@ public class HotelsController : ControllerBase
 
   // PUT: api/Hotels/5
   [HttpPut("{id}")]
+  [Authorize]
   public async Task<IActionResult> PutHotel(
     int id,
     HotelDto hotelDto
@@ -74,6 +76,7 @@ public class HotelsController : ControllerBase
 
   // POST: api/Hotels
   [HttpPost]
+  [Authorize]
   public async Task<ActionResult<Hotel>> PostHotel(
     CreateHotelDto createHotel
   )
@@ -87,6 +90,7 @@ public class HotelsController : ControllerBase
 
   // DELETE: api/Hotels/5
   [HttpDelete("{id}")]
+  [Authorize(Roles = "Administrator")]
   public async Task<IActionResult> DeleteHotel(int id)
   {
     var hotel = await _hotelsRepository.GetAsync(id);
