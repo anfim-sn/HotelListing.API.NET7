@@ -1,5 +1,5 @@
-﻿using HotelListing.API.Contracts;
-using HotelListing.API.Models.Users;
+﻿using HotelListing.API.Core.Contracts;
+using HotelListing.API.Core.Models.Users;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HotelListing.API.Controllers;
@@ -9,10 +9,15 @@ namespace HotelListing.API.Controllers;
 public class AccountController : ControllerBase
 {
   private readonly IAuthManager _authManager;
+  private readonly ILogger<AccountController> _logger;
 
-  public AccountController(IAuthManager authManager)
+  public AccountController(
+    IAuthManager authManager,
+    ILogger<AccountController> logger
+  )
   {
     _authManager = authManager;
+    _logger = logger;
   }
 
   // POST: api/account/register
@@ -23,17 +28,32 @@ public class AccountController : ControllerBase
   [ProducesResponseType(StatusCodes.Status200OK)]
   public async Task<IActionResult> Register([FromBody] ApiUserDto apiUserDto)
   {
-    var errors = await _authManager.Register(apiUserDto);
-
-    if (errors.Any())
+    _logger.LogInformation($"Registration Attempt for {apiUserDto.Email}");
+    try
     {
-      foreach (var error in errors)
-        ModelState.AddModelError(error.Code, error.Description);
+      var errors = await _authManager.Register(apiUserDto);
 
-      return BadRequest(ModelState);
+      if (errors.Any())
+      {
+        foreach (var error in errors)
+          ModelState.AddModelError(error.Code, error.Description);
+
+        return BadRequest(ModelState);
+      }
+
+      return Ok();
     }
-
-    return Ok();
+    catch (Exception e)
+    {
+      _logger.LogError(
+        e,
+        $"Something Went Wrong in the {nameof(Register)} - User Registration Attempt for {apiUserDto.Email}"
+      );
+      return Problem(
+        $"Something Went Wrong in the {nameof(Register)}. Please contact support",
+        statusCode: 500
+      );
+    }
   }
 
   // POST: api/account/login
@@ -44,11 +64,26 @@ public class AccountController : ControllerBase
   [ProducesResponseType(StatusCodes.Status200OK)]
   public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
   {
-    var authResponse = await _authManager.Login(loginDto);
+    _logger.LogInformation($"Login Attempt for {loginDto.Email}");
+    try
+    {
+      var authResponse = await _authManager.Login(loginDto);
 
-    if (authResponse == null) return Unauthorized();
+      if (authResponse == null) return Unauthorized();
 
-    return Ok(authResponse);
+      return Ok(authResponse);
+    }
+    catch (Exception e)
+    {
+      _logger.LogError(
+        e,
+        $"Something Went Wrong in the {nameof(Login)} - User Login Attempt for {loginDto.Email}"
+      );
+      return Problem(
+        $"Something Went Wrong in the {nameof(Login)}. Please contact support",
+        statusCode: 500
+      );
+    }
   }
 
   // POST: api/account/refreshtoken
